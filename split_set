@@ -9,7 +9,8 @@ ranges = []
 i = set_count
 files = []
 while i > 0
-  ranges << [(i-1)/set_count..i/set_count]
+  range = (i-1)/set_count...i/set_count
+  ranges << range
   i -= 1
   name_train = "train" + "#{i.to_i}"
   name_test = "test" + "#{i.to_i}"
@@ -25,13 +26,17 @@ end
 
 while line = gets
   line.chomp!
-  line_number = rand
+  line_number = rand.to_f
   #puts line_number.class
   ranges.each_with_index { |x, ind|
+#    puts line_number
+#    puts x.class
     if x.include?(line_number)
       files[ind*2].puts line
+#      puts true
     else
       files[ind*2+1].puts line
+#      puts false
     end
   }
 end
