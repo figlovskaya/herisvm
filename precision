@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+golden_tags = IO.read(ARGV[0]).split("\n")
+result_tags = IO.read(ARGV[1]).split("\n")
+if golden_tags.length != result_tags.length
+  exit 1
+end
+
+tag2golden_cnt = {}
+tag2result_cnt = {}
+tag2TP_cnt = {}
+
+tag2golden_cnt[1] = 0
+
+for i in 0..golden_tags.length-1 do
+  gt = golden_tags[i]
+  rt = result_tags[i]
+#  puts gt, rt
+  tag2golden_cnt[gt] = tag2golden_cnt[gt].to_i + 1
+  tag2result_cnt[rt] = tag2result_cnt[rt].to_i + 1
+  tag2TP_cnt[rt] = tag2TP_cnt[rt].to_i + (gt == rt ? 1 : 0)
+
+  # make sure hash cell exists
+  tag2TP_cnt[gt] = tag2TP_cnt[gt].to_i + 0
+  tag2result_cnt[gt] = tag2result_cnt[gt].to_i + 0
+end
+
+tag2TP_cnt.each do |t, tp|
+  p = tp.to_f / tag2result_cnt[t]
+  r = tp.to_f / tag2golden_cnt[t]
+  puts "P(#{t}): #{p}    #{tp.to_f} / #{tag2result_cnt[t]}"
+  puts "R(#{t}): #{r}    #{tp.to_f} / #{tag2golden_cnt[t]}"
+end

@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
 
 set_count = ENV["set_count"].to_f
-
+tmp_dir = ENV["TMP_DIR_SVM"]
 #############################################
 #### to create ranges and
 
 ranges = []
 i = set_count
-files = []
+files_test = []
+files_train = []
 while i > 0
   range = (i-1)/set_count...i/set_count
   ranges << range
@@ -15,8 +16,10 @@ while i > 0
   name_train = "train" + "#{i.to_i}"
   name_test = "test" + "#{i.to_i}"
   #puts name_train
-  files << File.open(name_test+".txt", 'w')
-  files << File.open(name_train+".txt", 'w')
+#  files_test << File.open(name_test+".txt", 'w')
+#  files_train << File.open(name_train+".txt", 'w')
+  files_test << File.open(tmp_dir+"/"+name_test+".txt", 'w')
+  files_train << File.open(tmp_dir+ "/"+ name_train+".txt", 'w')
 end
 # = File.open(ENV["tmp"]"+"/" ".txt", 'w')
 #puts files.inspect
@@ -32,15 +35,18 @@ while line = gets
 #    puts line_number
 #    puts x.class
     if x.include?(line_number)
-      files[ind*2].puts line
+      files_test[ind].puts line
 #      puts true
     else
-      files[ind*2+1].puts line
+      files_train[ind].puts line
 #      puts false
     end
   }
 end
 
-files.each { |x|
+files_test.each { |x|
+  x.close
+}
+files_train.each { |x|
   x.close
 }
