@@ -66,8 +66,9 @@ shift `expr $OPTIND - 1`
 if test -z number_of_folds; then
     eval "${SVM_TRAIN_CMD} $svm_args" "$@"
 else
-    export TMP_DIR_SVM='/tmp/zzz'; mkdir "$TMP_DIR_SVM" 2>/dev/null || true # `mktemp -d /tmp/svm.XXXXXX`
-    echo TMP_DIR_SVM="$TMP_DIR_SVM" 1>&2
+    trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
+    export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
+
     export set_count="$number_of_folds"
     cat "$@" | split_set
     last=`expr $number_of_folds - 1`
@@ -91,7 +92,6 @@ else
     
     for i in `seq 0 $last`
     do
-	#	cut -d ' ' -f1 "$TMP_DIR_SVM/train$i.txt" > "$TMP_DIR_SVM/train$i_categ.txt"
 	echo "Fold $i statistics"  
 	awk '{print $1}' "$TMP_DIR_SVM/test$i.txt" > "$TMP_DIR_SVM/golden_tags${i}"
 	precision "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
