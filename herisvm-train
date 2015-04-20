@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# variables settable by user
+: ${SVM_TRAIN_CMD:=svm-train}
+: ${SVM_PREDICT_CMD:=svm-predict}
+
+############################################################
 set -e
 export LC_ALL=C
 
@@ -59,7 +64,7 @@ done
 shift `expr $OPTIND - 1`
 
 if test -z number_of_folds; then
-    eval "svm-train $svm_args" "$@"
+    eval "${SVM_TRAIN_CMD} $svm_args" "$@"
 else
     export TMP_DIR_SVM='/tmp/zzz'; mkdir "$TMP_DIR_SVM" 2>/dev/null || true # `mktemp -d /tmp/svm.XXXXXX`
     echo TMP_DIR_SVM="$TMP_DIR_SVM" 1>&2
@@ -69,17 +74,14 @@ else
 
     for i in `seq 0 $last` #{1..$number_of_folds}
     do
-#	echo $i
-	eval "svm-train $svm_args '$TMP_DIR_SVM/train$i.txt' '$TMP_DIR_SVM/svm$i.bin'" &
-#	svm-predict "$TMP_DIR_SVM/train$i" "$TMP_DIR_SVM/svm.bin" \
-#		    "$TMP_DIR_SVM/result${i}" 2> "$TMP_DIR_SVM/stderr${i}"
+	eval "${SVM_TRAIN_CMD} $svm_args '$TMP_DIR_SVM/train$i.txt' '$TMP_DIR_SVM/svm$i.bin'" &
     done
 
     wait
 
     for i in `seq 0 $last`
     do
-	svm-predict "$TMP_DIR_SVM/test$i.txt" "$TMP_DIR_SVM/svm$i.bin" \
+	${SVM_PREDICT_CMD} "$TMP_DIR_SVM/test$i.txt" "$TMP_DIR_SVM/svm$i.bin" \
 		    "$TMP_DIR_SVM/result${i}.txt" 2> "$TMP_DIR_SVM/predict_stderr${i}"
     done
 
