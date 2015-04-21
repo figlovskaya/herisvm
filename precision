@@ -34,38 +34,32 @@ res_tag2TP_cnt.each do |t, tp|
   p = tp.to_f / tag2result_cnt[t]
   r = tp.to_f / tag2golden_cnt[t]
   f1 = 2*p*r / (p+r)
-  puts "P(#{t}) : #{p}    #{tp.to_f} / #{tag2result_cnt[t]}"
-  puts "R(#{t}) : #{r}    #{tp.to_f} / #{tag2golden_cnt[t]}"
-  puts "F1(#{t}): #{f1}"
+  puts "Class #{t} P, R, F1:  #{p.round(4)} (#{tp}/#{tag2result_cnt[t]}),  #{r.round(4)} (#{tp}/#{tag2golden_cnt[t]}),  #{f1.round(4)}"
   all_precision += p
   all_recall += r
   all_tp += tp
   all_f1 += f1
 end
 
-if tag2TP_cnt.size > 0
-  macro_avg_precision = all_precision / tag2TP_cnt.size
-  macro_avg_recall = all_recall / tag2TP_cnt.size
-  macro_avg_f1 = all_f1 / tag2TP_cnt.size
- 
-  puts "Macro average precision: #{macro_avg_precision}"
-  puts "Macro average recall: #{macro_avg_recall}"
-  puts "Micro average f1: #{macro_avg_f1}"
-end
-
 all_rt = 0
 tag2result_cnt.each { |tag, rt|
   all_rt += rt
 }
+
 all_gt = 0
 tag2golden_cnt.each { |tag, gt|
   all_gt += gt
 }
+
 micro_avg_precision = all_tp.to_f / all_rt.to_f
 micro_avg_recall = all_tp.to_f / all_gt.to_f
-puts "Micro average precision: #{micro_avg_precision}"
-puts "Micro average recall: #{micro_avg_recall}"
-
 micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
 
-puts "Micro average f1: #{micro_avg_f1}"
+puts "Micro P, R, F1:  #{micro_avg_precision.round(4)} (#{all_tp}/#{all_rt}),  #{micro_avg_recall.round(4)} (#{all_tp}/#{all_gt}),  #{micro_avg_f1.round(4)}"
+if tag2TP_cnt.size > 0
+  macro_avg_precision = all_precision / tag2TP_cnt.size
+  macro_avg_recall = all_recall / tag2TP_cnt.size
+  macro_avg_f1 = all_f1 / tag2TP_cnt.size
+  
+  puts "Macro P, R, F1:  #{macro_avg_precision.round(4)},  #{macro_avg_recall.round(4)},  #{macro_avg_f1.round(4)}"
+end
