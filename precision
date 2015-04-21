@@ -9,6 +9,8 @@ end
 tag2golden_cnt = {}
 tag2result_cnt = {}
 tag2TP_cnt = {}
+all_precision = 0
+all_recall = 0
 
 tag2golden_cnt[1] = 0
 
@@ -25,9 +27,35 @@ for i in 0..golden_tags.length-1 do
   tag2result_cnt[gt] = tag2result_cnt[gt].to_i + 0
 end
 
-tag2TP_cnt.each do |t, tp|
+all_tp = 0
+res_tag2TP_cnt = tag2TP_cnt.sort_by { |key, value| key }
+res_tag2TP_cnt.each do |t, tp|
   p = tp.to_f / tag2result_cnt[t]
   r = tp.to_f / tag2golden_cnt[t]
-  puts "P(#{t}): #{p}    #{tp.to_f} / #{tag2result_cnt[t]}"
-  puts "R(#{t}): #{r}    #{tp.to_f} / #{tag2golden_cnt[t]}"
+  f1 = 2*p*r / (p+r)
+  puts "P(#{t}) : #{p}    #{tp.to_f} / #{tag2result_cnt[t]}"
+  puts "R(#{t}) : #{r}    #{tp.to_f} / #{tag2golden_cnt[t]}"
+  puts "F1(#{t}): #{f1}"
+  all_precision += p
+  all_recall += r
+  all_tp += tp
 end
+
+macro_avg_precision = all_precision / tag2TP_cnt.size
+macro_avg_recall = all_recall / tag2TP_cnt.size
+
+puts "Macro average precision: #{macro_avg_precision}"
+puts "Macro average recall: #{macro_avg_recall}"
+
+all_rt = 0
+tag2result_cnt.each { |tag, rt|
+  all_rt += rt
+}
+all_gt = 0
+tag2golden_cnt.each { |tag, gt|
+  all_gt += gt
+}
+micro_avg_precision = all_tp.to_f / all_rt.to_f
+micro_avg_recall = all_tp.to_f / all_gt.to_f
+puts "Micro average precision: #{micro_avg_precision}"
+puts "Micro average recall: #{micro_avg_recall}"
