@@ -10,72 +10,69 @@ export LC_ALL=C
 
 usage(){
     cat 1>&2 <<'EOF'
-usage: svm [OPT]
+usage: herisvm-train [HERISVM_OPTIONS] training_set -- SVM_TRAIN_OPTIONS
 HG_OPTS:
-      -v n: n-fold cross validation mode
-      -s svm_type : set type of SVM (default 0)
-	        0 -- C-SVC
-	        1 -- nu-SVC
-	        2 -- one-class SVM
-	        3 -- epsilon-SVR
-	        4 -- nu-SVR
-      -t kernel_type : set type of kernel function (default 2)
-	        0 -- linear: u'*v
-	        1 -- polynomial: (gamma*u'*v + coef0)^degree
-	        2 -- radial basis function: exp(-gamma*|u-v|^2)
-	        3 -- sigmoid: tanh(gamma*u'*v + coef0)
-	        4 -- precomputed kernel (kernel values in training_set_file)
-      -d degree : set degree in kernel function (default 3)
-      -g gamma : set gamma in kernel function (default 1/num_features)
-      -r coef0 : set coef0 in kernel function (default 0)
-      -c cost : set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)
-      -n nu : set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
-      -p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)
-      -m cachesize : set cache memory size in MB (default 100)
-      -e epsilon : set tolerance of termination criterion (default 0.001)
-      -h shrinking : whether to use the shrinking heuristics, 0 or 1 (default 1)
-      -b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
-      -w weight : set the parameter C of class i to weight*C, for C-SVC (default 1)
-         (Here our script is incompatible with svm-train)
-      -q : quiet mode (no outputs)
-
-Example: 
+      -h                   help message
+      -v n                 n-fold cross validation mode
+      -s                   all folds statistic     
+      -p <precision_opts>  options passed to precision(1)
+Examples: 
+  Ex1: export SVM_TRAIN_CMD='liblinear-train'
+       export SVM_PREDICT_CMD='liblinear-predict'
+       herisvm-train -v 5 -- -s 4 -q
+  Ex2: export SVM_TRAIN_CMD='gb-train'
+       export SVM_PREDICT_CMD='gb-predict'
+       herisvm-train -v 4 -- -gb -opt -io -ns
 EOF
 }
 
-while getopts b:c:d:e:g:h:m:n:qp:r:s:t:v:w: f; do
+while getopts hp:v: f; do
     case "$f" in
 	'?')
 	    usage
 	    exit 1;;
-#	h)
-#	    usage
-#	    exit 0;;
+	h)
+	    usage
+	    exit 0;;
 	v)
 	    number_of_folds="$OPTARG";;
-	b|c|d|e|g|h|m|n|p|r|s|t)
-	    svm_args="$svm_args -$f '$OPTARG'";;
-	w)
-	    svm_args="$svm_args -wi '$OPTARG'";;
-	q)
-	    svm_args="$svm_args $f";;	
+	p)
+	    precision_args="precision_args $OPTARG";;
+	s)
+	    fold_statistics="ok"
+	    precision_args="$precision_args $OPTARG";;
     esac
 done
 shift `expr $OPTIND - 1`
 
-if test -z number_of_folds; then
-    eval "${SVM_TRAIN_CMD} $svm_args" "$@"
+while test "$#" -gt 0; do
+    case "$1" in
+	--)
+	    shift
+	    break;;
+	*)
+	    print_sh=`printf '%q' "$1"`
+	    files="$files $print_sh"
+	    shift;;
+    esac
+done
+
+# "$@" -- svm options
+
+if test -z $number_of_folds; then
+    exit 1
+    eval "${SVM_TRAIN_CMD} $@" "$files"
 else
     trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
     export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
     export set_count="$number_of_folds"
-    cat "$@" | split_set
+    cat $files | split_set
     last=`expr $number_of_folds - 1`
 
     for i in `seq 0 $last` #{1..$number_of_folds}
     do
-	eval "${SVM_TRAIN_CMD} $svm_args '$TMP_DIR_SVM/train$i.txt' '$TMP_DIR_SVM/svm$i.bin'" &
+	eval "${SVM_TRAIN_CMD} $@ '$TMP_DIR_SVM/train$i.txt' '$TMP_DIR_SVM/svm$i.bin'" > "$TMP_DIR_SVM/train_stderr${i}" &
     done
 
     wait
