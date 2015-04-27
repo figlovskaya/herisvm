@@ -26,7 +26,7 @@ Examples:
 EOF
 }
 
-while getopts hp:v: f; do
+while getopts hsp:v: f; do
     case "$f" in
 	'?')
 	    usage
@@ -38,6 +38,8 @@ while getopts hp:v: f; do
 	    number_of_folds="$OPTARG";;
 	p)
 	    precision_args="$precision_args $OPTARG";;
+	s)
+	    fold_statistics="ok";;
     esac
 done
 shift `expr $OPTIND - 1`
@@ -88,12 +90,16 @@ else
     
     for i in `seq 0 $last`
     do
-	echo "Fold $i statistics"  
+	if test -n "$fold_statistics"; then
+	    echo "Fold $i statistics"
+	fi
 	awk '{print $1}' "$TMP_DIR_SVM/test$i.txt" > "$TMP_DIR_SVM/golden_tags${i}"
-	precision "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
 
-	echo ''
-	#
+	if test -n "$fold_statistics"; then
+	    precision "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
+	    echo ''
+	fi
+
 	cat "$TMP_DIR_SVM/golden_tags${i}" >> "$TMP_DIR_SVM/golden_tags"
 	cat "$TMP_DIR_SVM/result${i}.txt"  >> "$TMP_DIR_SVM/result.txt"
     done
