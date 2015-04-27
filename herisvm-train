@@ -37,9 +37,6 @@ while getopts hp:v: f; do
 	v)
 	    number_of_folds="$OPTARG";;
 	p)
-	    precision_args="precision_args $OPTARG";;
-	s)
-	    fold_statistics="ok"
 	    precision_args="$precision_args $OPTARG";;
     esac
 done
@@ -80,7 +77,9 @@ else
     for i in `seq 0 $last`
     do
 	${SVM_PREDICT_CMD} "$TMP_DIR_SVM/test$i.txt" "$TMP_DIR_SVM/svm$i.bin" \
-		    "$TMP_DIR_SVM/result${i}.txt" 2> "$TMP_DIR_SVM/predict_stderr${i}"
+			   "$TMP_DIR_SVM/result${i}.txt" \
+			   2> "$TMP_DIR_SVM/predict_stderr${i}" \
+			   >  "$TMP_DIR_SVM/predict_stdout${i}"
     done
 
     wait
@@ -100,5 +99,6 @@ else
     done
 
     echo 'Total statistics'
-    precision "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"
+    precision $precision_args "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"
+
 fi

@@ -1,5 +1,36 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
+options = {}
+OptionParser.new do |opts|
+  opts.on('-h', '--help','display this message and exit') do
+    puts opts
+    exit 0
+  end
+
+  options[:micro_avg] = false
+  opts.on('-m', '--micro-avg','disable micro averaged P/R/F1 output') do
+    options[:micro_avg] = true
+  end
+
+    options[:macro_avg] = false
+  opts.on('-r', '--macro-avg','disable macro averaged P/R/F1 output') do
+    options[:macro_avg] = true
+  end
+
+  options[:statistics] = false
+  opts.on('-s', '--statistics-per-class','disable output of per-class') do
+    options[:statistics] = true
+  end
+
+    options[:accuracy] = false
+  opts.on('-a', '--accuracy','disable output of per-class P/R/F1') do
+    options[:accuracy] = true
+  end
+
+  opts.separator " "
+end.parse!
+
 golden_tags = IO.read(ARGV[0]).split("\n")
 result_tags = IO.read(ARGV[1]).split("\n")
 if golden_tags.length != result_tags.length
@@ -32,7 +63,9 @@ res_tag2TP_cnt.each do |t, tp|
   p = tp.to_f / tag2result_cnt[t]
   r = tp.to_f / tag2golden_cnt[t]
   f1 = 2*p*r / (p+r)
-  puts "Class #{t} P, R, F1:  #{p.round(4)} (#{tp}/#{tag2result_cnt[t]}),  #{r.round(4)} (#{tp}/#{tag2golden_cnt[t]}),  #{f1.round(4)}"
+  if !options[:statistics]
+    puts "Class #{t} P, R, F1:  #{p.round(4)} (#{tp}/#{tag2result_cnt[t]}),  #{r.round(4)} (#{tp}/#{tag2golden_cnt[t]}),  #{f1.round(4)}"
+  end
   all_precision += p
   all_recall += r
   all_tp += tp
@@ -49,15 +82,16 @@ tag2golden_cnt.each { |tag, gt|
   all_gt += gt
 }
 
-micro_avg_precision = all_tp.to_f / all_rt.to_f
-micro_avg_recall = all_tp.to_f / all_gt.to_f
-micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
+if !options[:micro_avg]
+  micro_avg_precision = all_tp.to_f / all_rt.to_f
+  micro_avg_recall = all_tp.to_f / all_gt.to_f
+  micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
+  puts "Micro P, R, F1:  #{micro_avg_precision.round(4)} (#{all_tp}/#{all_rt}),  #{micro_avg_recall.round(4)} (#{all_tp}/#{all_gt}),  #{micro_avg_f1.round(4)}"
+end
 
-puts "Micro P, R, F1:  #{micro_avg_precision.round(4)} (#{all_tp}/#{all_rt}),  #{micro_avg_recall.round(4)} (#{all_tp}/#{all_gt}),  #{micro_avg_f1.round(4)}"
-if tag2TP_cnt.size > 0
-  macro_avg_precision = all_precision / tag2TP_cnt.size
-  macro_avg_recall = all_recall / tag2TP_cnt.size
-  macro_avg_f1 = all_f1 / tag2TP_cnt.size
-  
-  puts "Macro P, R, F1:  #{macro_avg_precision.round(4)},  #{macro_avg_recall.round(4)},  #{macro_avg_f1.round(4)}"
+if !options[:macro_avg] && tag2TP_cnt.size > 0
+    macro_avg_precision = all_precision / tag2TP_cnt.size
+    macro_avg_recall = all_recall / tag2TP_cnt.size
+    macro_avg_f1 = all_f1 / tag2TP_cnt.size
+    puts "Macro P, R, F1:  #{macro_avg_precision.round(4)},  #{macro_avg_recall.round(4)},  #{macro_avg_f1.round(4)}"
 end
