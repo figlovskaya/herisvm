@@ -94,7 +94,7 @@ fi
 trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
 export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
-export set_count="$number_of_folds"
+export FOLD_CNT="$number_of_folds"
 eval "cat -- $files" | herisplit
 last=`expr $number_of_folds - 1`
 

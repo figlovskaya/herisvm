@@ -21,17 +21,17 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set_count = ENV["set_count"].to_f
+fold_cnt = ENV["FOLD_CNT"].to_f
 tmp_dir = ENV["TMP_DIR_SVM"]
 #############################################
 #### to create ranges and
 
 ranges = []
-i = set_count
+i = fold_cnt
 files_test = []
 files_train = []
 while i > 0
-  range = (i-1)/set_count...i/set_count
+  range = (i-1)/fold_cnt...i/fold_cnt
   ranges << range
   i -= 1
   name_train = "train" + "#{i.to_i}"
