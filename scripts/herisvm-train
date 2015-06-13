@@ -36,11 +36,40 @@ sig_handler (){
 }
 
 on_exit(){
+    show_stderr
     rm -rf "$tmp_dir"
 }
 
-trap "sig_handler INT"  INT
-trap "on_exit" 0
+show_stderr (){
+    for i in `seq 0 $last`; do
+	#
+	fn="$tmp_dir/train_stderr${i}"
+	if test -s "$fn"; then
+	    echo "---- train stderr $i ----" 1>&2
+	    cat -- "$fn" 1>&2
+	fi
+	#
+	fn="$tmp_dir/predict_stderr${i}"
+	if test -s "$fn"; then
+	    echo "---- predict stderr $i ----" 1>&2
+	    cat -- "$fn" 1>&2
+	fi
+    done
+}
+
+wait_all (){
+    local i
+    local ex
+    ex=0
+    for i in `seq 0 $last`; do
+	if wait ${pid[$i]}; then
+	    :
+	else
+	    ex=$?
+	fi
+    done
+    return "$ex"
+}
 
 usage(){
     cat 1>&2 <<'EOF'
@@ -55,6 +84,8 @@ OPTIONS:
                            dataset into traing and testing parts.
                            The default is empty, which means
                            'split dataset randomly every invocation'
+      -D                   debugging mode, keep temporary directory
+                           after exiting
 
 SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
 
@@ -68,7 +99,7 @@ Examples:
 EOF
 }
 
-while getopts hsS:p:v: f; do
+while getopts hDsS:p:v: f; do
     case "$f" in
 	'?')
 	    usage
@@ -84,6 +115,8 @@ while getopts hsS:p:v: f; do
 	    fold_statistics="ok";;
 	S)
 	    seed="$OPTARG";;
+	D)
+	    debug=1;;
     esac
 done
 shift `expr $OPTIND - 1`
@@ -99,6 +132,11 @@ while test "$#" -gt 0; do
 	    shift;;
     esac
 done
+
+if test -z "$debug"; then
+    trap "sig_handler INT"  INT
+    trap "on_exit" 0
+fi
 
 if test -z "$number_of_folds"; then
     echo 'Option -v is mandatory, run herisvm-train -h for details' 1>&2
@@ -123,20 +161,20 @@ do
     pid[$i]=$!
 done
 
-wait
+wait_all
 
 for i in `seq 0 $last`
 do
     ${SVM_PREDICT_CMD} "$tmp_dir/test$i.txt" "$tmp_dir/svm$i.bin" \
 	"$tmp_dir/result${i}.txt" \
 	2> "$tmp_dir/predict_stderr${i}" \
-	>  "$tmp_dir/predict_stdout${i}"
+	>  "$tmp_dir/predict_stdout${i}" &
 done
 
-wait
+wait_all
 
 rm -f "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
-    
+
 for i in `seq 0 $last`
 do
     if test -n "$fold_statistics"; then
