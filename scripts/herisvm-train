@@ -169,6 +169,7 @@ do
 	"$tmp_dir/result${i}.txt" \
 	2> "$tmp_dir/predict_stderr${i}" \
 	>  "$tmp_dir/predict_stdout${i}" &
+    pid[$i]=$!
 done
 
 wait_all
