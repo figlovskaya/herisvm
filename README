@@ -1,0 +1,6 @@
+hersvm project is a collection of simple tools implementing
+cross-validation for classification and regression.
+
+Run herisvm-train -h for details.
+
+TODO: complete this document
