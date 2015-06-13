@@ -1,2 +1,3 @@
-* show stderr of svm-train if it exits with non-zero exit status.
 * To calculate accuracy
+* Add requirements to TODO file
+* Fill in README (pod? markdown?)
