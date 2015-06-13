@@ -85,7 +85,8 @@ res_tag2TP_cnt.each do |t, tp|
   r = tp.to_f / tag2golden_cnt[t]
   f1 = 2*p*r / (p+r)
   if !options[:statistics]
-    puts "Class #{t} P, R, F1:  #{p.round(4)} (#{tp}/#{tag2result_cnt[t]}),  #{r.round(4)} (#{tp}/#{tag2golden_cnt[t]}),  #{f1.round(4)}"
+    puts "Class  %-6s P, R, F1:  %-6.4g (%5s/%-5s),  %-6.4g (%5s/%-5s),  %-6.4g" \
+      % [t, p, tp, tag2result_cnt[t], r, tp, tag2golden_cnt[t], f1]
   end
   all_precision += p
   all_recall += r
@@ -107,12 +108,14 @@ if !options[:micro_avg]
   micro_avg_precision = all_tp.to_f / all_rt.to_f
   micro_avg_recall = all_tp.to_f / all_gt.to_f
   micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
-  puts "Micro P, R, F1:  #{micro_avg_precision.round(4)} (#{all_tp}/#{all_rt}),  #{micro_avg_recall.round(4)} (#{all_tp}/#{all_gt}),  #{micro_avg_f1.round(4)}"
+  puts "Micro average P, R, F1:  %-6.4g (%5s/%-5s),  %-6.4g (%5s/%-5s),  %-6.4g" \
+    % [micro_avg_precision, all_tp, all_rt, micro_avg_recall, all_tp, all_gt, micro_avg_f1]
 end
 
 if !options[:macro_avg] && tag2TP_cnt.size > 0
-    macro_avg_precision = all_precision / tag2TP_cnt.size
-    macro_avg_recall = all_recall / tag2TP_cnt.size
-    macro_avg_f1 = all_f1 / tag2TP_cnt.size
-    puts "Macro P, R, F1:  #{macro_avg_precision.round(4)},  #{macro_avg_recall.round(4)},  #{macro_avg_f1.round(4)}"
+  macro_avg_precision = all_precision / tag2TP_cnt.size
+  macro_avg_recall = all_recall / tag2TP_cnt.size
+  macro_avg_f1 = all_f1 / tag2TP_cnt.size
+  puts "Macro average P, R, F1:  %-20.4g,  %-20.4g,  %-6.4g" \
+    % [macro_avg_precision, macro_avg_recall, macro_avg_f1]
 end
