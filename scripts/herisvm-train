@@ -117,7 +117,10 @@ last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
 do
-    eval "${SVM_TRAIN_CMD} $@ '$tmp_dir/train$i.txt' '$tmp_dir/svm$i.bin'" > "$tmp_dir/train_stderr${i}" &
+    ${SVM_TRAIN_CMD} "$@" "$tmp_dir/train$i.txt" "$tmp_dir/svm$i.bin" \
+	2> "$tmp_dir/train_stderr${i}"
+	>  "$tmp_dir/train_stdout${i}" &
+    pid[$i]=$!
 done
 
 wait
