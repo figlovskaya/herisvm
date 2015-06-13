@@ -11,12 +11,15 @@ export LC_ALL=C
 usage(){
     cat 1>&2 <<'EOF'
 usage: herisvm-train [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
+
 OPTIONS:
       -h                   help message
       -v n                 n-fold cross validation mode (mandatory option)
       -s                   all folds statistics
-      -p <precision_opts>  options passed to precision(1)
+      -p <stat_opts>       options passed to heristat(1)
+
 SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
+
 Examples: 
   Ex1: export SVM_TRAIN_CMD='liblinear-train'
        export SVM_PREDICT_CMD='liblinear-predict'
@@ -38,7 +41,7 @@ while getopts hsp:v: f; do
 	v)
 	    number_of_folds="$OPTARG";;
 	p)
-	    precision_args="$precision_args $OPTARG";;
+	    heristat_args="$heristat_args $OPTARG";;
 	s)
 	    fold_statistics="ok";;
     esac
@@ -71,7 +74,7 @@ trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
 export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
 export set_count="$number_of_folds"
-eval "cat -- $files" | split_set
+eval "cat -- $files" | herisplit
 last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
@@ -101,7 +104,7 @@ do
     awk '{print $1}' "$TMP_DIR_SVM/test$i.txt" > "$TMP_DIR_SVM/golden_tags${i}"
 
     if test -n "$fold_statistics"; then
-	precision "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
+	heristat "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
 	echo ''
     fi
 
@@ -110,4 +113,4 @@ do
 done
 
 echo 'Total statistics'
-precision $precision_args "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"
+heristat $heristat_args "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"

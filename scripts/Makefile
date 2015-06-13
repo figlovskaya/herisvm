@@ -1,3 +1,3 @@
-SCRIPTS =	herisvm-train split_set precision
+SCRIPTS =	herisvm-train herisplit heristat
 
 .include <mkc.mk>
