@@ -10,19 +10,20 @@ export LC_ALL=C
 
 usage(){
     cat 1>&2 <<'EOF'
-usage: herisvm-train [HERISVM_OPTIONS] training_set -- SVM_TRAIN_OPTIONS
-HERISVM_OPTS:
+usage: herisvm-train [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
+OPTIONS:
       -h                   help message
       -v n                 n-fold cross validation mode (mandatory option)
-      -s                   all folds statistic     
+      -s                   all folds statistics
       -p <precision_opts>  options passed to precision(1)
+SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
 Examples: 
   Ex1: export SVM_TRAIN_CMD='liblinear-train'
        export SVM_PREDICT_CMD='liblinear-predict'
-       herisvm-train -v 5 -- -s 4 -q
-  Ex2: export SVM_TRAIN_CMD='gb-train'
-       export SVM_PREDICT_CMD='gb-predict'
-       herisvm-train -v 4 -- -gb -opt -io -ns
+       herisvm-train -v 5 training_set.libsvm -- -s 4 -q
+  Ex2: export SVM_TRAIN_CMD='fake-train'
+       export SVM_PREDICT_CMD='fake-predict'
+       herisvm-train -v 4 training_set.libsvm -- -f -a -k -e
 EOF
 }
 
@@ -56,10 +57,13 @@ while test "$#" -gt 0; do
     esac
 done
 
-# "$@" -- svm options
-
-if test -z $number_of_folds; then
+if test -z "$number_of_folds"; then
     echo 'Option -v is mandatory, run herisvm-train -h for details' 1>&2
+    exit 1
+fi
+
+if test -z "$files"; then
+    echo 'Training set is mandatory, run herisvm-train -h for details' 1>&2
     exit 1
 fi
 
@@ -67,7 +71,7 @@ trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
 export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
 export set_count="$number_of_folds"
-cat $files | split_set
+eval "cat -- $files" | split_set
 last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
