@@ -29,6 +29,19 @@
 set -e
 export LC_ALL=C
 
+sig_handler (){
+    on_exit
+    trap - "$1"
+    kill -"$1" $$
+}
+
+on_exit(){
+    rm -rf "$TMP_DIR_SVM"
+}
+
+trap "sig_handler INT"  INT
+trap "on_exit" 0
+
 usage(){
     cat 1>&2 <<'EOF'
 usage: herisvm-train [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
@@ -97,7 +110,6 @@ if test -z "$files"; then
     exit 1
 fi
 
-trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
 TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
 eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$TMP_DIR_SVM" -s "$seed"
