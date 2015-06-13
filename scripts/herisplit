@@ -21,8 +21,33 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-fold_cnt = ENV["FOLD_CNT"].to_f
-tmp_dir = ENV["TMP_DIR_SVM"]
+require 'optparse'
+options = {}
+fold_cnt = nil
+tmp_dir = nil
+
+OptionParser.new do |opts|
+  opts.on('-h', '--help','display this message and exit') do
+    puts opts
+    exit 0
+  end
+
+  opts.on("-cFOLD_CNT", "--folds=FOLD_CNT", "A number if folds (mandatory option)") do |c|
+    fold_cnt = c.to_f
+  end
+
+  opts.on("-dDIR", "--output-dir=DIR", "Output directory (mandatory option)") do |d|
+    tmp_dir = d
+  end
+
+  opts.separator " "
+end.parse!
+
+if tmp_dir == nil or fold_cnt == nil then
+  STDERR.puts("Options -c and -d are mandatory, see herisplit for details")
+  exit(1)
+end
+
 #############################################
 #### to create ranges and
 

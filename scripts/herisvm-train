@@ -92,10 +92,9 @@ if test -z "$files"; then
 fi
 
 trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
-export TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
+TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
-export FOLD_CNT="$number_of_folds"
-eval "cat -- $files" | herisplit
+eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$TMP_DIR_SVM"
 last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
