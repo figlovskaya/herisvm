@@ -22,9 +22,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'optparse'
+
 options = {}
 fold_cnt = nil
 tmp_dir = nil
+seed = Random.new_seed
 
 OptionParser.new do |opts|
   opts.on('-h', '--help','display this message and exit') do
@@ -40,6 +42,12 @@ OptionParser.new do |opts|
     tmp_dir = d
   end
 
+  opts.on("-sSEED", "--seed=SEED", "Seed for pseudo-random number generator") do |s|
+    if s != "" then
+      seed = s.to_i
+    end
+  end
+
   opts.separator " "
 end.parse!
 
@@ -47,6 +55,8 @@ if tmp_dir == nil or fold_cnt == nil then
   STDERR.puts("Options -c and -d are mandatory, see herisplit for details")
   exit(1)
 end
+
+rnd = Random.new(seed)
 
 #############################################
 #### to create ranges and
@@ -75,7 +85,7 @@ end
 
 while line = gets
   line.chomp!
-  line_number = rand.to_f
+  line_number = rnd.rand.to_f
   #puts line_number.class
   ranges.each_with_index { |x, ind|
 #    puts line_number

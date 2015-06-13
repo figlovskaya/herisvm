@@ -38,6 +38,10 @@ OPTIONS:
       -v n                 n-fold cross validation mode (mandatory option)
       -s                   all folds statistics
       -p <stat_opts>       options passed to heristat(1)
+      -S <seed>            seed pseudo-random generator used for splitting
+                           dataset into traing and testing parts.
+                           The default is empty, which means
+                           'split dataset randomly every invocation'
 
 SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
 
@@ -51,7 +55,7 @@ Examples:
 EOF
 }
 
-while getopts hsp:v: f; do
+while getopts hsS:p:v: f; do
     case "$f" in
 	'?')
 	    usage
@@ -65,6 +69,8 @@ while getopts hsp:v: f; do
 	    heristat_args="$heristat_args $OPTARG";;
 	s)
 	    fold_statistics="ok";;
+	S)
+	    seed="$OPTARG";;
     esac
 done
 shift `expr $OPTIND - 1`
@@ -94,7 +100,7 @@ fi
 trap 'rm -rf $TMP_DIR_SVM' 0 INT TERM
 TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
 
-eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$TMP_DIR_SVM"
+eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$TMP_DIR_SVM" -s "$seed"
 last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
