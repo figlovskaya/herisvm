@@ -36,7 +36,7 @@ sig_handler (){
 }
 
 on_exit(){
-    rm -rf "$TMP_DIR_SVM"
+    rm -rf "$tmp_dir"
 }
 
 trap "sig_handler INT"  INT
@@ -110,45 +110,45 @@ if test -z "$files"; then
     exit 1
 fi
 
-TMP_DIR_SVM=`mktemp -d /tmp/svm.XXXXXX`
+tmp_dir=`mktemp -d /tmp/svm.XXXXXX`
 
-eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$TMP_DIR_SVM" -s "$seed"
+eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
 last=`expr $number_of_folds - 1`
 
 for i in `seq 0 $last` #{1..$number_of_folds}
 do
-    eval "${SVM_TRAIN_CMD} $@ '$TMP_DIR_SVM/train$i.txt' '$TMP_DIR_SVM/svm$i.bin'" > "$TMP_DIR_SVM/train_stderr${i}" &
+    eval "${SVM_TRAIN_CMD} $@ '$tmp_dir/train$i.txt' '$tmp_dir/svm$i.bin'" > "$tmp_dir/train_stderr${i}" &
 done
 
 wait
 
 for i in `seq 0 $last`
 do
-    ${SVM_PREDICT_CMD} "$TMP_DIR_SVM/test$i.txt" "$TMP_DIR_SVM/svm$i.bin" \
-	"$TMP_DIR_SVM/result${i}.txt" \
-	2> "$TMP_DIR_SVM/predict_stderr${i}" \
-	>  "$TMP_DIR_SVM/predict_stdout${i}"
+    ${SVM_PREDICT_CMD} "$tmp_dir/test$i.txt" "$tmp_dir/svm$i.bin" \
+	"$tmp_dir/result${i}.txt" \
+	2> "$tmp_dir/predict_stderr${i}" \
+	>  "$tmp_dir/predict_stdout${i}"
 done
 
 wait
 
-rm -f "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"
+rm -f "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
     
 for i in `seq 0 $last`
 do
     if test -n "$fold_statistics"; then
 	echo "Fold $i statistics"
     fi
-    awk '{print $1}' "$TMP_DIR_SVM/test$i.txt" > "$TMP_DIR_SVM/golden_tags${i}"
+    awk '{print $1}' "$tmp_dir/test$i.txt" > "$tmp_dir/golden_tags${i}"
 
     if test -n "$fold_statistics"; then
-	heristat "$TMP_DIR_SVM/golden_tags${i}" "$TMP_DIR_SVM/result${i}.txt"
+	heristat "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
 	echo ''
     fi
 
-    cat "$TMP_DIR_SVM/golden_tags${i}" >> "$TMP_DIR_SVM/golden_tags"
-    cat "$TMP_DIR_SVM/result${i}.txt"  >> "$TMP_DIR_SVM/result.txt"
+    cat "$tmp_dir/golden_tags${i}" >> "$tmp_dir/golden_tags"
+    cat "$tmp_dir/result${i}.txt"  >> "$tmp_dir/result.txt"
 done
 
 echo 'Total statistics'
-heristat $heristat_args "$TMP_DIR_SVM/golden_tags" "$TMP_DIR_SVM/result.txt"
+heristat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
