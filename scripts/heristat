@@ -34,7 +34,7 @@ OptionParser.new do |opts|
     options[:micro_avg] = true
   end
 
-    options[:macro_avg] = false
+  options[:macro_avg] = false
   opts.on('-r', '--macro-avg','disable macro averaged P/R/F1 output') do
     options[:macro_avg] = true
   end
@@ -44,7 +44,7 @@ OptionParser.new do |opts|
     options[:statistics] = true
   end
 
-    options[:accuracy] = false
+  options[:accuracy] = false
   opts.on('-a', '--accuracy','disable output of per-class P/R/F1') do
     options[:accuracy] = true
   end
