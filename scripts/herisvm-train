@@ -202,7 +202,7 @@ do
     awk '{print $1}' "$tmp_dir/test$i.txt" > "$tmp_dir/golden_tags${i}"
 
     if test -n "$fold_statistics"; then
-	heristat "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
+	heristat $heristat_args "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
 	echo ''
     fi
 
