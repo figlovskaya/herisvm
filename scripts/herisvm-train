@@ -170,7 +170,7 @@ fi
 for i in `seq $last` #{1..$number_of_folds}
 do
     ${SVM_TRAIN_CMD} "$@" "$tmp_dir/train$i.txt" "$tmp_dir/svm$i.bin" \
-	2> "$tmp_dir/train_stderr${i}"
+	2> "$tmp_dir/train_stderr${i}" \
 	>  "$tmp_dir/train_stdout${i}" &
     pid[$i]=$!
 done
