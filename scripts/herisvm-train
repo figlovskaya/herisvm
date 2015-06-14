@@ -37,7 +37,11 @@ sig_handler (){
 
 on_exit(){
     show_stderr
-    rm -rf "$tmp_dir"
+    if test -z "$debug"; then
+	rm -rf "$tmp_dir"
+    else
+	echo "Temporary files are here $tmp_dir" 1>&2
+    fi
 }
 
 show_stderr (){
@@ -139,10 +143,8 @@ while test "$#" -gt 0; do
     esac
 done
 
-if test -z "$debug"; then
-    trap "sig_handler INT"  INT
-    trap "on_exit" 0
-fi
+trap "sig_handler INT"  INT
+trap "on_exit" 0
 
 if test -z "$number_of_folds" -a -z "$testing_set"; then
     echo 'Either -v or -e must be specified, run herisvm-train -h for details' 1>&2
