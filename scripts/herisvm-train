@@ -24,6 +24,7 @@
 # variables settable by user
 : ${SVM_TRAIN_CMD:=svm-train}
 : ${SVM_PREDICT_CMD:=svm-predict}
+: ${TMPDIR:=/tmp}
 
 ############################################################
 set -e
@@ -97,13 +98,16 @@ OPTIONS:
 
 SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
 
+Environment variables:
+  SVM_TRAIN_CMD   -- training utility, e.g., liblinear-training (svm-train)
+  SVM_PREDICT_CMD -- predicting utility, e.g., liblinear-predict (svm-predict)
+  TMPDIR          -- temporary directory (/tmp)
+
 Examples: 
+  Ex1: herisvm-train -e testing_set.libsvm training_set.libsvm -- -s 0 -t 0 -q -c 0.7
   Ex1: export SVM_TRAIN_CMD='liblinear-train'
        export SVM_PREDICT_CMD='liblinear-predict'
-       herisvm-train -v 5 training_set.libsvm -- -s 4 -q
-  Ex2: export SVM_TRAIN_CMD='fake-train'
-       export SVM_PREDICT_CMD='fake-predict'
-       herisvm-train -v 4 training_set.libsvm -- -f -a -k -e
+       herisvm-train -p '-mr' -v 5 training_set.libsvm -- -s 4 -q
 EOF
 }
 
@@ -156,7 +160,7 @@ if test -z "$files"; then
     exit 1
 fi
 
-tmp_dir=`mktemp -d /tmp/svm.XXXXXX`
+tmp_dir=`mktemp -d $TMPDIR/svm.XXXXXX`
 
 if test -n "$number_of_folds"; then
     eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
