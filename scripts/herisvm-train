@@ -41,7 +41,7 @@ on_exit(){
 }
 
 show_stderr (){
-    for i in `seq 0 $last`; do
+    for i in `seq $last`; do
 	#
 	fn="$tmp_dir/train_stderr${i}"
 	if test -s "$fn"; then
@@ -61,7 +61,7 @@ wait_all (){
     local i
     local ex
     ex=0
-    for i in `seq 0 $last`; do
+    for i in `seq $last`; do
 	if wait ${pid[$i]}; then
 	    :
 	else
@@ -77,7 +77,11 @@ usage: herisvm-train [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
 
 OPTIONS:
       -h                   help message
+
       -v n                 n-fold cross validation mode (mandatory option)
+
+      -e testing_set       testing set for hold-out method
+
       -s                   all folds statistics
       -p <stat_opts>       options passed to heristat(1)
       -S <seed>            seed pseudo-random generator used for splitting
@@ -99,7 +103,7 @@ Examples:
 EOF
 }
 
-while getopts hDsS:p:v: f; do
+while getopts De:hsS:p:v: f; do
     case "$f" in
 	'?')
 	    usage
@@ -109,6 +113,8 @@ while getopts hDsS:p:v: f; do
 	    exit 0;;
 	v)
 	    number_of_folds="$OPTARG";;
+	e)
+	    testing_set="$OPTARG";;
 	p)
 	    heristat_args="$heristat_args $OPTARG";;
 	s)
@@ -138,8 +144,8 @@ if test -z "$debug"; then
     trap "on_exit" 0
 fi
 
-if test -z "$number_of_folds"; then
-    echo 'Option -v is mandatory, run herisvm-train -h for details' 1>&2
+if test -z "$number_of_folds" -a -z "$testing_set"; then
+    echo 'Either -v or -e must be specified, run herisvm-train -h for details' 1>&2
     exit 1
 fi
 
@@ -150,10 +156,16 @@ fi
 
 tmp_dir=`mktemp -d /tmp/svm.XXXXXX`
 
-eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
-last=`expr $number_of_folds - 1`
+if test -n "$number_of_folds"; then
+    eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
+    last="$number_of_folds"
+else
+    eval "cat -- $files" > "$tmp_dir/train1.txt"
+    cp "$testing_set" "$tmp_dir/test1.txt"
+    last=1
+fi
 
-for i in `seq 0 $last` #{1..$number_of_folds}
+for i in `seq $last` #{1..$number_of_folds}
 do
     ${SVM_TRAIN_CMD} "$@" "$tmp_dir/train$i.txt" "$tmp_dir/svm$i.bin" \
 	2> "$tmp_dir/train_stderr${i}"
@@ -163,7 +175,7 @@ done
 
 wait_all
 
-for i in `seq 0 $last`
+for i in `seq $last`
 do
     ${SVM_PREDICT_CMD} "$tmp_dir/test$i.txt" "$tmp_dir/svm$i.bin" \
 	"$tmp_dir/result${i}.txt" \
@@ -176,7 +188,7 @@ wait_all
 
 rm -f "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
 
-for i in `seq 0 $last`
+for i in `seq $last`
 do
     if test -n "$fold_statistics"; then
 	echo "Fold $i statistics"

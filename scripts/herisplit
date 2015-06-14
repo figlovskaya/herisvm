@@ -68,7 +68,6 @@ files_train = []
 while i > 0
   range = (i-1)/fold_cnt...i/fold_cnt
   ranges << range
-  i -= 1
   name_train = "train" + "#{i.to_i}"
   name_test = "test" + "#{i.to_i}"
   #puts name_train
@@ -76,6 +75,7 @@ while i > 0
 #  files_train << File.open(name_train+".txt", 'w')
   files_test << File.open(tmp_dir+"/"+name_test+".txt", 'w')
   files_train << File.open(tmp_dir+ "/"+ name_train+".txt", 'w')
+  i -= 1
 end
 # = File.open(ENV["tmp"]"+"/" ".txt", 'w')
 #puts files.inspect
