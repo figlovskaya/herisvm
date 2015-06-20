@@ -109,7 +109,7 @@ if !options[:accuracy]
   puts "Accuracy              :  %-6.4g (%5s/%-5s)" % [accuracy, all_tp, all_rt]
 end
 
-if !options[:micro_avg]
+if false && !options[:micro_avg]
   micro_avg_precision = all_tp.to_f / all_rt.to_f
   micro_avg_recall = all_tp.to_f / all_gt.to_f
   micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
