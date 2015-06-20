@@ -104,6 +104,11 @@ tag2golden_cnt.each { |tag, gt|
   all_gt += gt
 }
 
+if !options[:accuracy]
+  accuracy = all_tp.to_f / all_rt.to_f
+  puts "Accuracy              :  %-6.4g (%5s/%-5s)" % [accuracy, all_tp, all_rt]
+end
+
 if !options[:micro_avg]
   micro_avg_precision = all_tp.to_f / all_rt.to_f
   micro_avg_recall = all_tp.to_f / all_gt.to_f
