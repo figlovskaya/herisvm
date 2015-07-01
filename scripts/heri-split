@@ -52,7 +52,7 @@ OptionParser.new do |opts|
 end.parse!
 
 if tmp_dir == nil or fold_cnt == nil then
-  STDERR.puts("Options -c and -d are mandatory, see herisplit for details")
+  STDERR.puts("Options -c and -d are mandatory, see heri-split for details")
   exit(1)
 end
 

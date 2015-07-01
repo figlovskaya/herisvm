@@ -37,7 +37,7 @@ def print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
 end
 
 def print_stat(class_name, p, p_comment, r, r_comment, f1, f1_comment)
-  if ! @options[:raw]
+  if @options[:raw]
     print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
   else
     print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
