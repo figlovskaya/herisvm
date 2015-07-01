@@ -49,6 +49,14 @@ def pretty_div(a, b)
 end
 
 OptionParser.new do |opts|
+  opts.banner = <<EOF
+heri-stat calculates precision, recall, F1
+  and some other things for given golden data and predictions.
+Usage:
+    heri-stat [OPTIONS] <golden_data> <results>
+OPTIONS:
+EOF
+
   opts.on('-h', '--help','display this message and exit') do
     puts opts
     exit 0
