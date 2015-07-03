@@ -36,7 +36,7 @@ cmp 'heri-stat #3 symbolic classes' \
 'Class  A      P, R, F1:  1      (    2/2    ),  0.6667 (    2/3    ),  0.8   
 Class  B      P, R, F1:  0.5    (    1/2    ),  0.5    (    1/2    ),  0.5   
 Class  C      P, R, F1:  0.5    (    1/2    ),  1      (    1/1    ),  0.6667
-Micro average P, R, F1:  0.6667 (    4/6    ),  0.6667 (    4/6    ),  0.6667
+Accuracy              :  0.6667 (    4/6    )
 Macro average P, R, F1:  0.6667              ,  0.7222              ,  0.6556
 '
 
@@ -52,6 +52,7 @@ Class  2     	f1	0.NNNN
 Class  3     	precision	0.NNNN	(    1/2    )
 Class  3     	recall	1.0	(    1/1    )
 Class  3     	f1	0.NNNN	
+	accuracy	0.NNNN	(    4/6    )
 Macro average	precision	0.NNNN	
 Macro average	recall	0.NNNN	
 Macro average	f1	0.NNNN	
@@ -69,17 +70,13 @@ Class  2     	f1	0.NNNN
 Class  3     	precision	0.NNNN	(    1/2    )
 Class  3     	recall	1.0	(    1/1    )
 Class  3     	f1	0.NNNN	
-Micro average	precision	0.NNNN	(    4/6    )
-Micro average	recall	0.NNNN	(    4/6    )
-Micro average	f1	0.NNNN	
+	accuracy	0.NNNN	(    4/6    )
 '
 
 heri-stat -Rs golden1.txt result1.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #6 -s' \
-'Micro average	precision	0.NNNN	(    4/6    )
-Micro average	recall	0.NNNN	(    4/6    )
-Micro average	f1	0.NNNN	
+'	accuracy	0.NNNN	(    4/6    )
 Macro average	precision	0.NNNN	
 Macro average	recall	0.NNNN	
 Macro average	f1	0.NNNN	
@@ -88,10 +85,7 @@ Macro average	f1	0.NNNN
 heri-stat -Ras golden1.txt result1.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #7 -Ras' \
-'Micro average	precision	0.NNNN	(    4/6    )
-Micro average	recall	0.NNNN	(    4/6    )
-Micro average	f1	0.NNNN	
-Macro average	precision	0.NNNN	
+'Macro average	precision	0.NNNN	
 Macro average	recall	0.NNNN	
 Macro average	f1	0.NNNN	
 '
