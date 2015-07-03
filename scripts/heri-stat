@@ -118,7 +118,7 @@ end
 
 tag2golden_cnt = Hash.new(0)
 tag2result_cnt = Hash.new(0)
-tag2TP_cnt = {}
+tag2TP_cnt = Hash.new(0)
 all_precision = 0
 all_recall = 0
 
@@ -126,13 +126,13 @@ for i in 0..golden_tags.length-1 do
   gt = normalize_tag(golden_tags[i])
   rt = normalize_tag(result_tags[i])
 #  puts gt, rt
-  tag2golden_cnt[gt] = tag2golden_cnt[gt].to_i + 1
-  tag2result_cnt[rt] = tag2result_cnt[rt].to_i + 1
-  tag2TP_cnt[rt] = tag2TP_cnt[rt].to_i + (gt == rt ? 1 : 0)
+  tag2golden_cnt[gt] += 1
+  tag2result_cnt[rt] += 1
+  tag2TP_cnt[rt] += (gt == rt ? 1 : 0)
 
   # make sure hash cell exists
-  tag2TP_cnt[gt] = tag2TP_cnt[gt].to_i + 0
-  tag2result_cnt[gt] = tag2result_cnt[gt].to_i + 0
+  tag2TP_cnt[gt] += 0
+  tag2result_cnt[gt] += 0
 end
 
 all_tp = 0
