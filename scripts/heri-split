@@ -29,6 +29,14 @@ tmp_dir = nil
 seed = Random.new_seed
 
 OptionParser.new do |opts|
+  opts.banner = <<EOF
+heri-split splits the given dataset (in svmlight format)
+  into training and testing sets for further evaluation.
+Usage:
+    heri-split [OPTIONS] [files...]
+OPTIONS:
+EOF
+
   opts.on('-h', '--help','display this message and exit') do
     puts opts
     exit 0
@@ -52,7 +60,7 @@ OptionParser.new do |opts|
 end.parse!
 
 if tmp_dir == nil or fold_cnt == nil then
-  STDERR.puts("Options -c and -d are mandatory, see herisplit for details")
+  STDERR.puts("Options -c and -d are mandatory, see heri-split for details")
   exit(1)
 end
 

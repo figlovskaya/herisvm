@@ -22,31 +22,85 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require 'optparse'
-options = {}
+
+@options = {}
+
+def print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  puts "%13s P, R, F1:  %-6.4g %13s,  %-6.4g %13s,  %-6.4g" \
+    % [class_name, p, p_comment, r, r_comment, f1, f1_comment]
+end
+
+def print_accuracy_pretty(a, a_comment)
+  puts "Accuracy              :  %-6.4g %13s" % [a, a_comment]
+end
+
+def print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  puts "#{class_name}\tprecision\t#{p}\t#{p_comment}"
+  puts "#{class_name}\trecall\t#{r}\t#{r_comment}"
+  puts "#{class_name}\tf1\t#{f1}\t#{f1_comment}"
+end
+
+def print_accuracy_raw(a, a_comment)
+  puts "\taccuracy\t#{a}\t#{a_comment}"
+end
+
+def print_stat(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  if @options[:raw]
+    print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  else
+    print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  end
+end
+
+def print_accuracy(a, a_comment)
+  if @options[:raw]
+    print_accuracy_raw(a, a_comment)
+  else
+    print_accuracy_pretty(a, a_comment)
+  end
+end
+
+def pretty_div(a, b)
+  "(%5s/%-5s)" % [a, b]
+end
+
 OptionParser.new do |opts|
+  opts.banner = <<EOF
+heri-stat calculates precision, recall, F1
+  and some other things for given golden data and predictions.
+Usage:
+    heri-stat [OPTIONS] <golden_data> <results>
+OPTIONS:
+EOF
+
   opts.on('-h', '--help','display this message and exit') do
     puts opts
     exit 0
   end
 
-  options[:micro_avg] = false
+  @options[:raw] = false
+  opts.on('-R', '--raw','raw tab-separated output') do
+    @options[:raw] = true
+  end
+
+  @options[:micro_avg] = false
   opts.on('-m', '--micro-avg','disable micro averaged P/R/F1 output') do
-    options[:micro_avg] = true
+    @options[:micro_avg] = true
   end
 
-  options[:macro_avg] = false
+  @options[:macro_avg] = false
   opts.on('-r', '--macro-avg','disable macro averaged P/R/F1 output') do
-    options[:macro_avg] = true
+    @options[:macro_avg] = true
   end
 
-  options[:statistics] = false
+  @options[:statistics] = false
   opts.on('-s', '--statistics-per-class','disable output of per-class') do
-    options[:statistics] = true
+    @options[:statistics] = true
   end
 
-  options[:accuracy] = false
+  @options[:accuracy] = false
   opts.on('-a', '--accuracy','disable output of per-class P/R/F1') do
-    options[:accuracy] = true
+    @options[:accuracy] = true
   end
 
   opts.separator " "
@@ -84,9 +138,11 @@ res_tag2TP_cnt.each do |t, tp|
   p = tp.to_f / tag2result_cnt[t]
   r = tp.to_f / tag2golden_cnt[t]
   f1 = 2*p*r / (p+r)
-  if !options[:statistics]
-    puts "Class  %-6s P, R, F1:  %-6.4g (%5s/%-5s),  %-6.4g (%5s/%-5s),  %-6.4g" \
-      % [t, p, tp, tag2result_cnt[t], r, tp, tag2golden_cnt[t], f1]
+  if !@options[:statistics]
+    print_stat("Class  %-6s" % [t],
+                 p, pretty_div(tp, tag2result_cnt[t]),
+                 r, pretty_div(tp, tag2golden_cnt[t]),
+                 f1, "")
   end
   all_precision += p
   all_recall += r
@@ -104,23 +160,27 @@ tag2golden_cnt.each { |tag, gt|
   all_gt += gt
 }
 
-if !options[:accuracy]
+if !@options[:accuracy]
   accuracy = all_tp.to_f / all_rt.to_f
-  puts "Accuracy              :  %-6.4g (%5s/%-5s)" % [accuracy, all_tp, all_rt]
+  print_accuracy(accuracy, pretty_div(all_tp, all_rt))
 end
 
-if false && !options[:micro_avg]
+if false && !@options[:micro_avg]
   micro_avg_precision = all_tp.to_f / all_rt.to_f
   micro_avg_recall = all_tp.to_f / all_gt.to_f
   micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)
-  puts "Micro average P, R, F1:  %-6.4g (%5s/%-5s),  %-6.4g (%5s/%-5s),  %-6.4g" \
-    % [micro_avg_precision, all_tp, all_rt, micro_avg_recall, all_tp, all_gt, micro_avg_f1]
+  print_stat("Micro average",
+               micro_avg_precision, pretty_div(all_tp, all_rt),
+               micro_avg_recall, pretty_div(all_tp, all_gt),
+               micro_avg_f1, "")
 end
 
-if !options[:macro_avg] && tag2TP_cnt.size > 0
+if !@options[:macro_avg] && tag2TP_cnt.size > 0
   macro_avg_precision = all_precision / tag2TP_cnt.size
   macro_avg_recall = all_recall / tag2TP_cnt.size
   macro_avg_f1 = all_f1 / tag2TP_cnt.size
-  puts "Macro average P, R, F1:  %-20.4g,  %-20.4g,  %-6.4g" \
-    % [macro_avg_precision, macro_avg_recall, macro_avg_f1]
+  print_stat("Macro average",
+               macro_avg_precision, "",
+               macro_avg_recall, "",
+               macro_avg_f1, "")
 end

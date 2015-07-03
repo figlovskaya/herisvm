@@ -78,7 +78,7 @@ wait_all (){
 
 usage(){
     cat 1>&2 <<'EOF'
-usage: herisvm-train [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
+usage: heri-eval [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
 
 OPTIONS:
       -h                   help message
@@ -88,7 +88,7 @@ OPTIONS:
       -e testing_set       testing set for hold-out method
 
       -s                   all folds statistics
-      -p <stat_opts>       options passed to heristat(1)
+      -p <stat_opts>       options passed to heri-stat(1)
       -S <seed>            seed pseudo-random generator used for splitting
                            dataset into traing and testing parts.
                            The default is empty, which means
@@ -104,10 +104,10 @@ Environment variables:
   TMPDIR          -- temporary directory (/tmp)
 
 Examples: 
-  Ex1: herisvm-train -e testing_set.libsvm training_set.libsvm -- -s 0 -t 0 -q -c 0.7
+  Ex1: heri-eval -e testing_set.libsvm training_set.libsvm -- -s 0 -t 0 -q -c 0.7
   Ex1: export SVM_TRAIN_CMD='liblinear-train'
        export SVM_PREDICT_CMD='liblinear-predict'
-       herisvm-train -p '-mr' -v 5 training_set.libsvm -- -s 4 -q
+       heri-eval -p '-mr' -v 5 training_set.libsvm -- -s 4 -q
 EOF
 }
 
@@ -151,19 +151,19 @@ trap "sig_handler INT"  INT
 trap "on_exit" 0
 
 if test -z "$number_of_folds" -a -z "$testing_set"; then
-    echo 'Either -v or -e must be specified, run herisvm-train -h for details' 1>&2
+    echo 'Either -v or -e must be specified, run heri-eval -h for details' 1>&2
     exit 1
 fi
 
 if test -z "$files"; then
-    echo 'Training set is mandatory, run herisvm-train -h for details' 1>&2
+    echo 'Training set is mandatory, run heri-eval -h for details' 1>&2
     exit 1
 fi
 
 tmp_dir=`mktemp -d $TMPDIR/svm.XXXXXX`
 
 if test -n "$number_of_folds"; then
-    eval "cat -- $files" | herisplit -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
+    eval "cat -- $files" | heri-split -c "$number_of_folds" -d "$tmp_dir" -s "$seed"
     last="$number_of_folds"
 else
     eval "cat -- $files" > "$tmp_dir/train1.txt"
@@ -202,7 +202,7 @@ do
     awk '{print $1}' "$tmp_dir/test$i.txt" > "$tmp_dir/golden_tags${i}"
 
     if test -n "$fold_statistics"; then
-	heristat $heristat_args "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
+	heri-stat $heristat_args "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
 	echo ''
     fi
 
@@ -211,4 +211,4 @@ do
 done
 
 echo 'Total statistics'
-heristat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
+heri-stat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
