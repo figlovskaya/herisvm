@@ -102,7 +102,7 @@ OptionParser.new do |opts|
 heri-stat calculates precision, recall, F1
   and some other things for given golden data and predictions.
 Usage:
-    heri-stat    [OPTIONS] <golden_data> <results>
+    heri-stat    [OPTIONS] <golden_file> <predictions_file>
     heri-stat -1 [OPTIONS] [files...]
 OPTIONS:
 EOF
@@ -138,7 +138,10 @@ EOF
   end
 
   @options[:single] = false
-  opts.on('-1', '--single','obtain both golden and predicted classes from single source') do
+  opts.on('-1', '--single','obtain both golden and
+predicted classes from single source. If this option is specified,
+the first token on input represents the golden class
+and second one -- predicted class') do
     @options[:single] = true
   end
 
