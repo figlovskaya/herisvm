@@ -30,10 +30,18 @@ def print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
     % [class_name, p, p_comment, r, r_comment, f1, f1_comment]
 end
 
+def print_accuracy_pretty(a, a_comment)
+  puts "Accuracy              :  %-6.4g %13s" % [a, a_comment]
+end
+
 def print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
   puts "#{class_name}\tprecision\t#{p}\t#{p_comment}"
   puts "#{class_name}\trecall\t#{r}\t#{r_comment}"
   puts "#{class_name}\tf1\t#{f1}\t#{f1_comment}"
+end
+
+def print_accuracy_raw(a, a_comment)
+  puts "\taccuracy\t#{a}\t#{a_comment}"
 end
 
 def print_stat(class_name, p, p_comment, r, r_comment, f1, f1_comment)
@@ -41,6 +49,14 @@ def print_stat(class_name, p, p_comment, r, r_comment, f1, f1_comment)
     print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
   else
     print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
+  end
+end
+
+def print_accuracy(a, a_comment)
+  if @options[:raw]
+    print_accuracy_raw(a, a_comment)
+  else
+    print_accuracy_pretty(a, a_comment)
   end
 end
 
@@ -148,7 +164,12 @@ tag2golden_cnt.each { |tag, gt|
   all_gt += gt
 }
 
-if !@options[:micro_avg]
+if !@options[:accuracy]
+  accuracy = all_tp.to_f / all_rt.to_f
+  print_accuracy(accuracy, pretty_div(all_tp, all_rt))
+end
+
+if false && !@options[:micro_avg]
   micro_avg_precision = all_tp.to_f / all_rt.to_f
   micro_avg_recall = all_tp.to_f / all_gt.to_f
   micro_avg_f1 = 2*micro_avg_precision*micro_avg_recall / (micro_avg_precision+micro_avg_recall)

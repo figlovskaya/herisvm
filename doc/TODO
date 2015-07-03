@@ -1,3 +1,8 @@
 * Add requirements to TODO file
 * Fill in README (pod? markdown?)
 * confusion matrix
+* heri-eval:
+  - Repeated random sub-sampling
+  - T*N-fold crossvalidation
+  - Average/maximum deviation from different samples
+  - Alternative for heri-split for formats other that svmlight/libsvm
