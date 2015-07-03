@@ -66,15 +66,33 @@ def pretty_div(a, b)
 end
 
 def normalize_tag(tag, fn)
+  tag = tag.gsub(/\s+/, " ").strip()
   tag = tag.sub(/^[+]/, "") # +1 => 1
 
   tokens = tag.split(/ /)
-  if tokens.size == 1
+  case tokens.size
+  when 1
     return [tokens[0], 1.0]
-  elsif tokens.size == 2
+  when 2
     return [tokens[0], tokens[1].to_f]
   else
-    STDERR.puts("Bad line `#{tag}` in file #{fn}")
+    STDERR.puts("Bad line '#{tag}' in file '#{fn}'")
+    @err = 1
+  end
+end
+
+def normalize_tag1(line, fn)
+  line = line.gsub(/\s+/, " ").strip()
+  line = line.sub(/^[+]/, "").sub(/ [+]/, " ") # +1 => 1
+
+  tokens = line.split(/ /)
+  case tokens.size
+  when 2
+    return [tokens[0], tokens[1], 1.0]
+  when 3
+    return [tokens[0], tokens[1], tokens[2].to_f,]
+  else
+    STDERR.puts("Bad line '#{line}' in file '#{fn}'")
     @err = 1
   end
 end
@@ -84,7 +102,8 @@ OptionParser.new do |opts|
 heri-stat calculates precision, recall, F1
   and some other things for given golden data and predictions.
 Usage:
-    heri-stat [OPTIONS] <golden_data> <results>
+    heri-stat    [OPTIONS] <golden_data> <results>
+    heri-stat -1 [OPTIONS] [files...]
 OPTIONS:
 EOF
 
@@ -118,19 +137,34 @@ EOF
     @options[:accuracy] = true
   end
 
+  @options[:single] = false
+  opts.on('-1', '--single','obtain both golden and predicted classes from single source') do
+    @options[:single] = true
+  end
+
   opts.separator " "
 end.parse!
 
-golden_tags = IO.read(ARGV[0]).split("\n")
-result_tags = IO.read(ARGV[1]).split("\n")
-if golden_tags.length != result_tags.length
-  STDERR.puts("Golden data and predictions should contain the same amount of classes");
-  exit 1
-end
+if @options[:single]
+  golden_tags = []
+  result_tags = []
+  while line = gets do
+    gt, rt, fake = normalize_tag1(line, "")
+    golden_tags << gt
+    result_tags << rt
+  end
+else
+  golden_tags = IO.read(ARGV[0]).split("\n")
+  result_tags = IO.read(ARGV[1]).split("\n")
+  if golden_tags.length != result_tags.length
+    STDERR.puts("Golden data and predictions should contain the same amount of classes");
+    exit 1
+  end
 
-for i in 0..golden_tags.length-1 do
-  golden_tags[i], fake = normalize_tag(golden_tags[i], ARGV[0])
-  result_tags[i], fake = normalize_tag(result_tags[i], ARGV[1])
+  for i in 0..golden_tags.length-1 do
+    golden_tags[i], fake = normalize_tag(golden_tags[i], ARGV[0])
+    result_tags[i], fake = normalize_tag(result_tags[i], ARGV[1])
+  end
 end
 
 exit 1 if @err

@@ -108,6 +108,24 @@ cmp 'heri-stat #9 bad length' \
 heri-stat golden3.txt bad_file.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #10 bad input' \
-'Bad line `` in file bad_file.txt
-Bad line `B C A` in file bad_file.txt
+"Bad line '' in file 'bad_file.txt'
+Bad line 'B C A' in file 'bad_file.txt'
+"
+
+heri-stat -1 all_in_one1.txt 2>&1 |
+cmp 'heri-stat #11 option -1' \
+'Class  1      P, R, F1:  1      (    2/2    ),  0.6667 (    2/3    ),  0.8   
+Class  2      P, R, F1:  0.5    (    1/2    ),  0.5    (    1/2    ),  0.5   
+Class  3      P, R, F1:  0.5    (    1/2    ),  1      (    1/1    ),  0.6667
+Accuracy              :  0.6667 (    4/6    )
+Macro average P, R, F1:  0.6667              ,  0.7222              ,  0.6556
+'
+
+heri-stat golden2.txt result2.txt 2>&1 |
+cmp 'heri-stat #12 symbolic classes and -1' \
+'Class  A      P, R, F1:  1      (    2/2    ),  0.6667 (    2/3    ),  0.8   
+Class  B      P, R, F1:  0.5    (    1/2    ),  0.5    (    1/2    ),  0.5   
+Class  C      P, R, F1:  0.5    (    1/2    ),  1      (    1/1    ),  0.6667
+Accuracy              :  0.6667 (    4/6    )
+Macro average P, R, F1:  0.6667              ,  0.7222              ,  0.6556
 '
