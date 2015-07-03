@@ -98,12 +98,12 @@ EOF
   end
 
   @options[:statistics] = false
-  opts.on('-s', '--statistics-per-class','disable output of per-class') do
+  opts.on('-c', '--per-class','disable output of per-class statistics') do
     @options[:statistics] = true
   end
 
   @options[:accuracy] = false
-  opts.on('-a', '--accuracy','disable output of per-class P/R/F1') do
+  opts.on('-a', '--accuracy','disable output of accuracy') do
     @options[:accuracy] = true
   end
 

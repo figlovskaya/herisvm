@@ -73,7 +73,7 @@ Class  3     	f1	0.NNNN
 	accuracy	0.NNNN	(    4/6    )
 '
 
-heri-stat -Rs golden1.txt result1.txt 2>&1 |
+heri-stat -Rc golden1.txt result1.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #6 -s' \
 '	accuracy	0.NNNN	(    4/6    )
@@ -82,7 +82,7 @@ Macro average	recall	0.NNNN
 Macro average	f1	0.NNNN	
 '
 
-heri-stat -Ras golden1.txt result1.txt 2>&1 |
+heri-stat -Rac golden1.txt result1.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #7 -Ras' \
 'Macro average	precision	0.NNNN	
