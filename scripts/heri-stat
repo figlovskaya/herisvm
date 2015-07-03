@@ -24,6 +24,7 @@
 require 'optparse'
 
 @options = {}
+@err = nil
 
 def print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
   puts "%13s P, R, F1:  %-6.4g %13s,  %-6.4g %13s,  %-6.4g" \
@@ -64,8 +65,18 @@ def pretty_div(a, b)
   "(%5s/%-5s)" % [a, b]
 end
 
-def normalize_tag(tag)
-  return tag.sub(/^[+]/, "")
+def normalize_tag(tag, fn)
+  tag = tag.sub(/^[+]/, "") # +1 => 1
+
+  tokens = tag.split(/ /)
+  if tokens.size == 1
+    return [tokens[0], 1.0]
+  elsif tokens.size == 2
+    return [tokens[0], tokens[1].to_f]
+  else
+    STDERR.puts("Bad line `#{tag}` in file #{fn}")
+    @err = 1
+  end
 end
 
 OptionParser.new do |opts|
@@ -117,6 +128,13 @@ if golden_tags.length != result_tags.length
   exit 1
 end
 
+for i in 0..golden_tags.length-1 do
+  golden_tags[i], fake = normalize_tag(golden_tags[i], ARGV[0])
+  result_tags[i], fake = normalize_tag(result_tags[i], ARGV[1])
+end
+
+exit 1 if @err
+
 tag2golden_cnt = Hash.new(0)
 tag2result_cnt = Hash.new(0)
 tag2TP_cnt = Hash.new(0)
@@ -124,9 +142,9 @@ all_precision = 0
 all_recall = 0
 
 for i in 0..golden_tags.length-1 do
-  gt = normalize_tag(golden_tags[i])
-  rt = normalize_tag(result_tags[i])
-#  puts gt, rt
+  gt = golden_tags[i]
+  rt = result_tags[i]
+
   tag2golden_cnt[gt] += 1
   tag2result_cnt[rt] += 1
   tag2TP_cnt[rt] += (gt == rt ? 1 : 0)
