@@ -60,7 +60,7 @@ Macro average	f1	0.NNNN
 
 heri-stat -Rr golden1.txt result1.txt 2>&1 |
 remove_fractions |
-cmp 'heri-stat #4 -r' \
+cmp 'heri-stat #5 -r' \
 'Class  1     	precision	1.0	(    2/2    )
 Class  1     	recall	0.NNNN	(    2/3    )
 Class  1     	f1	0.NNNN	
@@ -88,5 +88,14 @@ cmp 'heri-stat #7 -Ras' \
 'Macro average	precision	0.NNNN	
 Macro average	recall	0.NNNN	
 Macro average	f1	0.NNNN	
+'
+
+heri-stat golden3.txt result3.txt 2>&1 |
+remove_fractions |
+cmp 'heri-stat #8 all equal' \
+'Class  A      P, R, F1:  NaN    (    0/0    ),  0      (    0/6    ),  NaN   
+Class  B      P, R, F1:  0      (    0/6    ),  NaN    (    0/0    ),  NaN   
+Accuracy              :  0      (    0/6    )
+Macro average P, R, F1:  NaN                 ,  NaN                 ,  NaN   
 '
 

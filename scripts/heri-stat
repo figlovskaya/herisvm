@@ -116,8 +116,8 @@ if golden_tags.length != result_tags.length
   exit 1
 end
 
-tag2golden_cnt = {}
-tag2result_cnt = {}
+tag2golden_cnt = Hash.new(0)
+tag2result_cnt = Hash.new(0)
 tag2TP_cnt = {}
 all_precision = 0
 all_recall = 0
