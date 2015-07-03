@@ -27,22 +27,22 @@ require 'optparse'
 @err = nil
 
 def print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
-  puts "%13s P, R, F1:  %-6.4g %13s,  %-6.4g %13s,  %-6.4g" \
+  puts "%13s P, R, F1:  %-6.4g %-13s,  %-6.4g %-13s,  %-6.4g" \
     % [class_name, p, p_comment, r, r_comment, f1, f1_comment]
 end
 
 def print_accuracy_pretty(a, a_comment)
-  puts "Accuracy              :  %-6.4g %13s" % [a, a_comment]
+  puts "Accuracy              :  %-6.4g %-13s" % [a, a_comment]
 end
 
 def print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
-  puts "#{class_name}\tprecision\t#{p}\t#{p_comment}"
-  puts "#{class_name}\trecall\t#{r}\t#{r_comment}"
-  puts "#{class_name}\tf1\t#{f1}\t#{f1_comment}"
+  puts "#{class_name}\tprecision\t#{p}\t#{p_comment.strip}"
+  puts "#{class_name}\trecall\t#{r}\t#{r_comment.strip}"
+  puts "#{class_name}\tf1\t#{f1}\t#{f1_comment.strip}"
 end
 
 def print_accuracy_raw(a, a_comment)
-  puts "\taccuracy\t#{a}\t#{a_comment}"
+  puts "\taccuracy\t#{a}\t#{a_comment.strip}"
 end
 
 def print_stat(class_name, p, p_comment, r, r_comment, f1, f1_comment)
@@ -62,7 +62,7 @@ def print_accuracy(a, a_comment)
 end
 
 def pretty_div(a, b)
-  "(%5s/%-5s)" % [a, b]
+  "%5s/%-5s" % [a, b]
 end
 
 def normalize_tag(tag, fn)
