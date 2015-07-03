@@ -31,3 +31,14 @@ Macro average	precision	0.NNNN
 Macro average	recall	0.NNNN	
 Macro average	f1	0.NNNN	
 '
+
+# heri-stat
+heri-stat golden2.txt result2.txt 2>&1 |
+cmp 'heri-stat #3' \
+'Class  A      P, R, F1:  1      (    2/2    ),  0.6667 (    2/3    ),  0.8   
+Class  B      P, R, F1:  0.5    (    1/2    ),  0.5    (    1/2    ),  0.5   
+Class  C      P, R, F1:  0.5    (    1/2    ),  1      (    1/1    ),  0.6667
+Micro average P, R, F1:  0.6667 (    4/6    ),  0.6667 (    4/6    ),  0.6667
+Macro average P, R, F1:  0.6667              ,  0.7222              ,  0.6556
+'
+
