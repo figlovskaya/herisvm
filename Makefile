@@ -1,7 +1,7 @@
 PROJECTNAME =	herisvm
 SUBPRJ      =	doc scripts:tests
 
-MKC_REQD    =	0.29.0
+MKC_REQD    =	0.28.0
 
 NODEPS      =	*:test-tests
 
