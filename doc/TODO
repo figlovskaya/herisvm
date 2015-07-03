@@ -3,6 +3,9 @@
 * confusion matrix
 * heri-eval:
   - Repeated random sub-sampling
-  - T*N-fold crossvalidation
+  - T*N-fold cross-validation
   - Average/maximum deviation from different samples
   - Alternative for heri-split for formats other that svmlight/libsvm
+* heri-stat:
+  - probabbility treashold
+  - support for fake class (no decision for the object)
