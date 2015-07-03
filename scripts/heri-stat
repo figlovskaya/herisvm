@@ -113,6 +113,7 @@ end.parse!
 golden_tags = IO.read(ARGV[0]).split("\n")
 result_tags = IO.read(ARGV[1]).split("\n")
 if golden_tags.length != result_tags.length
+  STDERR.puts("Golden data and predictions should contain the same amount of classes");
   exit 1
 end
 

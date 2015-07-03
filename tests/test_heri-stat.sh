@@ -99,3 +99,9 @@ Accuracy              :  0      (    0/6    )
 Macro average P, R, F1:  NaN                 ,  NaN                 ,  NaN   
 '
 
+heri-stat golden3.txt /dev/null 2>&1 |
+remove_fractions |
+cmp 'heri-stat #9 bad length' \
+'Golden data and predictions should contain the same amount of classes
+'
+
