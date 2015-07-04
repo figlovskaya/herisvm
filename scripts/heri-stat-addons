@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+
+# This is an internal herisvm script.  It takes output "heri-stat -R"
+# on input and outputs maximum deviations
+
+lines = []
+while line = gets do
+  lines << line.split("\t")
+end
+
+module Enumerable
+  def sum
+    return self.inject(0){|accum, i| accum + i }
+  end
+
+  def mean
+    return self.sum / self.length.to_f
+  end
+
+  def sample_variance
+    m = self.mean
+    sum = self.inject(0){|accum, i| accum + (i - m) ** 2 }
+    return sum / (self.length - 1).to_f
+  end
+
+  def standard_deviation
+    return Math.sqrt(self.sample_variance)
+  end
+
+end
+
+def hash2hash2array
+  return Hash.new do
+    |h,k| h [k] = Hash.new do
+      |h,k| h [k] = []
+    end
+  end
+end
+
+def hash2hash
+  return Hash.new do
+    |h,k| h [k] = {}
+  end
+end
+
+def print_value_pretty(t, f, value1, value2)
+  if value2
+    puts "%-13s %-23s:  %6s   %6s" % [t, f, value1, value2]
+  else
+    puts "%-13s %-23s:  %6s" % [t, f, value1]
+  end
+end
+
+def print_value_raw(t, f, value1, value2)
+  exit 5 # not implemented yet
+end
+
+def print_value(t, f, value1, value2)
+  if false #@options[:raw]
+    print_value_raw(t, f, value1, value2)
+  else
+    print_value_pretty(t, f, value1, value2)
+  end
+end
+
+values = hash2hash2array
+
+lines.each do |tokens|
+  values [tokens[1]][tokens[0]] << tokens[2].to_f
+end
+
+mi = hash2hash
+ma = hash2hash
+max_deviation = hash2hash
+std_deviation = hash2hash
+
+values.each do |key1, hash|
+  hash.each do |key2, arr|
+    mi [key1] [key2] = arr.min
+    ma [key1] [key2] = arr.max
+    max_deviation [key1][key2] = arr.max - arr.min
+    std_deviation [key1][key2] = arr.standard_deviation
+  end
+end
+
+FIELDS = {"precision" => "P", "recall" => "R", "f1" => "F1", "accuracy" => "A"}
+#FIELDS = {"f1" => "F1"}
+TYPES  = {"" => 1, "Macro average" => 1}
+FIELDS.each do |f, f_to_print|
+  pairs = []
+  max_deviation[f].each do |t, max_dev|
+    pairs << [f, t] if max_dev && TYPES.include?(t)
+  end
+  max_deviation[f].each do |t, max_dev|
+    pairs << [f, t] if max_dev && ! TYPES.include?(t)
+  end
+
+  pairs.each do |ft|
+    max_dev = max_deviation [ft[0]][ft[1]]
+    std_dev = std_deviation [ft[0]][ft[1]]
+    max_dev = "%-5.3g" % [max_dev*100]
+    std_dev = "%-5.3g" % [std_dev*100]
+    print_value(ft[1], "max/std deviation(" + f_to_print + ")", max_dev, std_dev)
+  end
+  puts ''
+end

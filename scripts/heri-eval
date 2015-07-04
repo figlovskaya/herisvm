@@ -205,6 +205,8 @@ do
 	heri-stat $heristat_args "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
 	echo ''
     fi
+    heri-stat -R "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt" \
+	      > "$tmp_dir/evaluation${i}.txt"
 
     cat "$tmp_dir/golden_tags${i}" >> "$tmp_dir/golden_tags"
     cat "$tmp_dir/result${i}.txt"  >> "$tmp_dir/result.txt"
@@ -212,3 +214,8 @@ done
 
 echo 'Total statistics'
 heri-stat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
+echo ''
+
+echo 'Total cross-folds statistics'
+heri-stat-addons "$tmp_dir"/evaluation*.txt
+#echo ''
