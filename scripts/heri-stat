@@ -27,12 +27,12 @@ require 'optparse'
 @err = nil
 
 def print_pretty(class_name, p, p_comment, r, r_comment, f1, f1_comment)
-  puts "%13s P, R, F1:  %-6.4g %-13s,  %-6.4g %-13s,  %-6.4g" \
+  puts "  %13s P, R, F1:  %-6.4g %-13s,  %-6.4g %-13s,  %-6.4g" \
     % [class_name, p, p_comment, r, r_comment, f1, f1_comment]
 end
 
 def print_accuracy_pretty(a, a_comment)
-  puts "Accuracy              :  %-6.4g %-13s" % [a, a_comment]
+  puts "  Accuracy              :  %-6.4g %-13s" % [a, a_comment]
 end
 
 def print_raw(class_name, p, p_comment, r, r_comment, f1, f1_comment)
