@@ -45,9 +45,9 @@ end
 
 def print_value_pretty(t, f, value1, value2)
   if value2
-    puts "  %-13s %-23s:  %6s   %6s" % [t, f, value1, value2]
+    puts "%-13s %-23s:  %6s   %6s" % [t, f, value1, value2]
   else
-    puts "  %-13s %-23s:  %6s" % [t, f, value1]
+    puts "%-13s %-23s:  %6s" % [t, f, value1]
   end
 end
 

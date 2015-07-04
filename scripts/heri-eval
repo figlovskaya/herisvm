@@ -30,6 +30,10 @@
 set -e
 export LC_ALL=C
 
+indent2 (){
+    sed 's,^,  ,' "$@"
+}
+
 sig_handler (){
     on_exit
     trap - "$1"
@@ -210,7 +214,8 @@ do
     awk '{print $1}' "$tmp_dir/test$i.txt" > "$tmp_dir/golden_tags${i}"
 
     if test -n "$fold_statistics"; then
-	heri-stat $heristat_args "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt"
+	heri-stat $heristat_args \
+		  "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt" | indent2
 	echo ''
     fi
     heri-stat -R "$tmp_dir/golden_tags${i}" "$tmp_dir/result${i}.txt" \
@@ -221,9 +226,9 @@ do
 done
 
 echo 'Total statistics'
-heri-stat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt"
+heri-stat $heristat_args "$tmp_dir/golden_tags" "$tmp_dir/result.txt" | indent2
 echo ''
 
 echo 'Total cross-folds statistics'
-heri-stat-addons "$tmp_dir"/evaluation*.txt
+heri-stat-addons "$tmp_dir"/evaluation*.txt | indent2
 #echo ''
