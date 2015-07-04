@@ -1,11 +1,12 @@
-* Add requirements to TODO file
 * Fill in README (pod? markdown?)
 * confusion matrix
+* output FN and FP
 * heri-eval:
   - Repeated random sub-sampling
   - T*N-fold cross-validation
-  - Average/maximum deviation from different samples
-  - Alternative for heri-split for formats other that svmlight/libsvm
+  - Alternative formats (crfsuite) for heri-split
 * heri-stat:
-  - probabbility treashold
+  - probability treshold
   - support for fake class (no decision for the object)
+* heri-split
+  - stratified n-fold cross-validation
