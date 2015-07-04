@@ -3,7 +3,9 @@
 * output FN and FP
 * heri-eval:
   - Repeated random sub-sampling
+    heri-eval -t 10 -r 60 ...
   - T*N-fold cross-validation
+    heri-eval -t 10 -n 5 ...
   - Alternative formats (crfsuite) for heri-split
 * heri-stat:
   - probability treshold

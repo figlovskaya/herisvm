@@ -76,14 +76,19 @@ wait_all (){
     return "$ex"
 }
 
+#    heri-eval -t10 -n 5 dataset.libsvm          # 10*5-fold cross-validation
+#      -t T                 T*N-fold cross validation mode (1 by default)
 usage(){
     cat 1>&2 <<'EOF'
 usage: heri-eval [OPTIONS] training_set -- SVM_TRAIN_OPTIONS
+Examples:
+    heri-eval -n5 dataset.libsvm                # 5-fold cross-validation
+    heri-eval -e testing.libsvm dataset.libsvm  # testing on testing.libsvm
 
 OPTIONS:
       -h                   help message
 
-      -v n                 n-fold cross validation mode (mandatory option)
+      -n N                 N-fold cross validation mode (mandatory option)
 
       -e testing_set       testing set for hold-out method
 
@@ -111,7 +116,8 @@ Examples:
 EOF
 }
 
-while getopts De:hsS:p:v: f; do
+runs=1
+while getopts De:hn:p:sS:t: f; do
     case "$f" in
 	'?')
 	    usage
@@ -119,10 +125,12 @@ while getopts De:hsS:p:v: f; do
 	h)
 	    usage
 	    exit 0;;
-	v)
+	n)
 	    number_of_folds="$OPTARG";;
 	e)
 	    testing_set="$OPTARG";;
+	t)
+	    runs="$OPTARG";;
 	p)
 	    heristat_args="$heristat_args $OPTARG";;
 	s)
