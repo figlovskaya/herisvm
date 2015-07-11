@@ -12,6 +12,14 @@ Accuracy              :  0.6667     4/6
 Macro average P, R, F1:  0.6667              ,  0.7222              ,  0.6556
 '
 
+heri-stat golden4.txt result4.txt 2>&1 |
+cmp 'heri-stat #1 defaults with extra zeros' \
+'Class  -1     P, R, F1:  0.5        2/4      ,  1          2/2      ,  0.6667
+Class  1      P, R, F1:  1          2/2      ,  0.5        2/4      ,  0.6667
+Accuracy              :  0.6667     4/6      
+Macro average P, R, F1:  0.75                ,  0.75                ,  0.6667
+'
+
 heri-stat -R golden1.txt result1.txt 2>&1 |
 remove_fractions |
 cmp 'heri-stat #2 -R' \

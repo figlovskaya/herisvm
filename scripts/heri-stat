@@ -66,33 +66,25 @@ def pretty_div(a, b)
   "%5s/%-5s" % [a, b]
 end
 
-def normalize_tag(tag, fn)
-  tag = tag.gsub(/\s+/, " ").strip()
+def normalize_tag(tag)
   tag = tag.sub(/^[+]/, "") # +1 => 1
-
-  tokens = tag.split(/ /)
-  case tokens.size
-  when 1
-    return [tokens[0], 1.0]
-  when 2
-    return [tokens[0], tokens[1].to_f]
-  else
-    STDERR.puts("Bad line '#{tag}' in file '#{fn}'")
-    @err = 1
+  if tag =~ /^-?[0-9]+[.][0-9]+$/
+    tag = tag.sub(/[.]0+$/, "") # -1.0000 => -1
   end
+  return tag
 end
 
-def normalize_tag1(line, fn)
+def split_into_3(line, fn)
   line = line.gsub(/\s+/, " ").strip()
-  line = line.sub(/^[+]/, "").sub(/ [+]/, " ") # +1 => 1
 
   tokens = line.split(/ /)
   case tokens.size
   when 2
-    return [tokens[0], tokens[1], 1.0]
+    return [normalize_tag(tokens[0]), normalize_tag(tokens[1]), 1.0]
   when 3
-    return [tokens[0], tokens[1], tokens[2].to_f,]
+    return [normalize_tag(tokens[0]), normalize_tag(tokens[1]), tokens[2].to_f]
   else
+    line.sub!(/^fake ?/, "")
     STDERR.puts("Bad line '#{line}' in file '#{fn}'")
     @err = 1
   end
@@ -153,7 +145,7 @@ if @options[:single]
   golden_tags = []
   result_tags = []
   while line = gets do
-    gt, rt, fake = normalize_tag1(line, "")
+    gt, rt, fake = split_into_3(line, "")
     golden_tags << gt
     result_tags << rt
   end
@@ -166,8 +158,8 @@ else
   end
 
   for i in 0..golden_tags.length-1 do
-    golden_tags[i], fake = normalize_tag(golden_tags[i], ARGV[0])
-    result_tags[i], fake = normalize_tag(result_tags[i], ARGV[1])
+    fake1, golden_tags[i], fake = split_into_3("fake " + golden_tags[i], ARGV[0])
+    fake1, result_tags[i], fake = split_into_3("fake " + result_tags[i], ARGV[1])
   end
 end
 
