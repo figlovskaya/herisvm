@@ -120,7 +120,7 @@ FIELDS.each do |f, f_to_print|
   pairs.each do |ft|
     max_dev = max_deviation [ft[0]][ft[1]]
     std_dev = std_deviation [ft[0]][ft[1]]
-    max_dev = "%-5.3g" % [max_dev*100]
+    max_dev = "%-5.3g%" % [max_dev*100]
     std_dev = "%-5.3g" % [std_dev*100]
     print_value(ft[1], "max/std deviation(" + f_to_print + ")", max_dev, std_dev)
   end

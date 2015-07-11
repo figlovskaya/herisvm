@@ -97,7 +97,7 @@ OPTIONS:
 
       -e testing_set       testing set for hold-out method
 
-      -s                   all folds statistics
+      -s                   output statistics for all folds
       -p <stat_opts>       options passed to heri-stat(1)
       -S <seed>            seed pseudo-random generator used for splitting
                            dataset into traing and testing parts.
