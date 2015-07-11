@@ -43,7 +43,7 @@ sig_handler (){
 
 on_exit(){
     show_stderr
-    if test -z "$debug"; then
+    if test -z "$keep_tmp"; then
 	rm -rf "$tmp_dir"
     else
 	echo "Temporary files are here $tmp_dir" 1>&2
@@ -103,8 +103,8 @@ OPTIONS:
                            dataset into traing and testing parts.
                            The default is empty, which means
                            'split dataset randomly every invocation'
-      -D                   debugging mode, keep temporary directory
-                           after exiting
+      -K                   keep temporary directory after exiting
+      -D                   debugging mode, implies -K
 
 SVM_TRAIN_OPTIONS: options passed to svm-train(1) and alike
 
@@ -122,7 +122,7 @@ EOF
 }
 
 runs=1
-while getopts De:hn:p:sS:t: f; do
+while getopts De:hKn:p:sS:t: f; do
     case "$f" in
 	'?')
 	    usage
@@ -142,7 +142,10 @@ while getopts De:hn:p:sS:t: f; do
 	    fold_statistics="ok";;
 	S)
 	    seed="$OPTARG";;
+	K)
+	    keep_tmp=1;;
 	D)
+	    keep_tmp=1
 	    debug=1;;
     esac
 done
