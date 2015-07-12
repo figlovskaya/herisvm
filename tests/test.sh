@@ -35,21 +35,27 @@ trap "rm -rf $tmpdir" 0
 
 echo > $tmpex
 
-cmp (){
+cmp2 (){
     # $1 - progress message
-    # $2 - expected text
+    # $2 - filename with expected text
     printf '    %s... ' "$1" 1>&2
 
     cat > "$tmpfn2"
-    printf '%s' "$2" > "$tmpfn1"
 
-    if $DIFF_PROG "$tmpfn1" "$tmpfn2" > "$tmpfn3"; then
+    if $DIFF_PROG "$2" "$tmpfn2" > "$tmpfn3"; then
 	echo ok
     else
 	echo FAILED
 	awk '{print "   " $0}' "$tmpfn3"
 	rm -f $tmpex
     fi
+}
+
+cmp (){
+    # $1 - progress message
+    # $2 - expected text
+    printf '%s' "$2" > "$tmpfn1"
+    cmp2 "$1" "$tmpfn1"
 }
 
 # real tests
