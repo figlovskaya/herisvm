@@ -41,6 +41,7 @@ cmp 'heri-split #3 result files' \
 'test1.txt
 test2.txt
 test3.txt
+testing_fold.txt
 train1.txt
 train2.txt
 train3.txt
@@ -52,6 +53,6 @@ for i in 1 2 3; do
 	     "$dataset"
 done
 
-{ cat "$res_dir/"test*.txt | sort -k3,3n; } |
+{ cat "$res_dir/"test?.txt | sort -k3,3n; } |
 cmp2 "heri-split #5 testing sets correctness" \
      "$dataset"
