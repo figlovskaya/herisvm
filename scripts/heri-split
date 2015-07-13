@@ -70,10 +70,12 @@ rnd = Random.new(seed)
 #############################################
 #### to create ranges and
 
+
 ranges = []
 i = fold_cnt
 files_test = []
 files_train = []
+testing_fold =  File.open(tmp_dir+"/testing_fold.txt", 'w')
 while i > 0
   range = (i-1)/fold_cnt...i/fold_cnt
   ranges << range
@@ -101,6 +103,7 @@ while line = gets
 #    puts x.class
     if x.include?(line_number)
       files_test[ind].puts line
+      testing_fold.puts ind
 #      puts true
     else
       files_train[ind].puts line
@@ -115,3 +118,5 @@ files_test.each { |x|
 files_train.each { |x|
   x.close
 }
+
+testing_fold.close
