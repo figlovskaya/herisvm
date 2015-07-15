@@ -60,30 +60,24 @@ EOF
   opts.separator " "
 end.parse!
 
+
 if tmp_dir == nil or fold_cnt == nil then
   STDERR.puts("Options -c and -d are mandatory, see heri-split -h for details")
   exit(1)
-end
+ end
 
 rnd = Random.new(seed)
 
 #############################################
-#### to create ranges and
+#### to create ranges
 
-
-ranges = []
 i = fold_cnt
 files_test = []
 files_train = []
 testing_fold =  File.open(tmp_dir+"/testing_fold.txt", 'w')
 while i > 0
-  range = (i-1)/fold_cnt...i/fold_cnt
-  ranges << range
   name_train = "train" + "#{i.to_i}"
   name_test = "test" + "#{i.to_i}"
-  #puts name_train
-#  files_test << File.open(name_test+".txt", 'w')
-#  files_train << File.open(name_train+".txt", 'w')
   files_test << File.open(tmp_dir+"/"+name_test+".txt", 'w')
   files_train << File.open(tmp_dir+ "/"+ name_train+".txt", 'w')
   i -= 1
@@ -94,23 +88,54 @@ end
 #############################################
 ####
 
-while line = gets
-  line.chomp!
-  line_number = rnd.rand.to_f
-  #puts line_number.class
-  ranges.each_with_index { |x, ind|
-#    puts line_number
-#    puts x.class
-    if x.include?(line_number)
-      files_test[ind].puts line
-      testing_fold.puts ind
-#      puts true
-    else
-      files_train[ind].puts line
-#      puts false
+classes = Hash.new(0)
+ARGV.each do |fn|
+  File.open(fn).each_line do |line|
+    if line =~ /^([^\s]+)\s/
+      classes[$1] += 1
     end
-  }
+  end
 end
+#puts classes.inspect
+#exit 67
+classes_arr = {}
+classes.each { |x, y|
+  arr = []
+  i = 1
+  while i <= y
+    arr << i
+    i +=1
+  end
+  cnt = (( y / fold_cnt ) ).to_i
+  arr = arr.shuffle(random: rnd)
+  classes_arr [x] = {}
+  arr.each_index do |i|
+    fold_train = (i * fold_cnt / arr.size).to_i
+    classes_arr[x][arr[i]] = fold_train
+  end
+}
+
+#puts classes_arr.inspect
+#exit 56
+
+num_line = Hash.new(0)
+ARGV.each do |fn|
+  File.open(fn).each_line do |line|
+    if line =~ /^([^\s]+)\s/
+      num_line[$1] += 1
+      curr_number = num_line[$1]
+      (0...fold_cnt).each do |n|
+        if classes_arr[$1][curr_number] == n
+          files_test[classes_arr[$1][curr_number]].puts line
+          testing_fold.puts n
+        else
+          files_train[n].puts line
+        end
+      end
+    end
+  end
+end
+
 
 files_test.each { |x|
   x.close
@@ -118,5 +143,4 @@ files_test.each { |x|
 files_train.each { |x|
   x.close
 }
-
 testing_fold.close
